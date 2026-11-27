@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>カラブリヤ名古屋 現金入力</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* デザイン標準(案A ネイビー・コックピット・ライト既定+ダーク)。見出し=Zen Kaku Gothic New 900 / 数字=IBM Plex Mono */
+  :root {
+    --bg: #f6f7fa; --card: #ffffff; --ink: #1b2333; --sub: #5b6475; --line: #e3e7ef; --field: #ffffff;
+    --accent: #0f2e6d; --red: #e53e3e; --green: #16a34a; --amber: #b97a2a; --chip: #eef2fa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0b101a; --card: #141b2a; --ink: #e8ecf4; --sub: #9aa4b8; --line: #243049; --field: #0f1522;
+            --accent: #7fa0e8; --red: #ff5d5d; --green: #3ecf6b; --amber: #f5b14a; --chip: #1c2640; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif; font-size: 16px; }
+  header { background: linear-gradient(135deg, #081633, #0f2e6d); color: #fff; padding: 14px 16px; }
+  header h1 { margin: 0; font-size: 17px; font-weight: 900; }
+  header .sub { font-size: 12px; opacity: .85; margin-top: 2px; }
+  nav { display: flex; gap: 6px; padding: 10px 16px 0; max-width: 560px; margin: 0 auto; }
+  nav button { flex: 1; border: 1px solid var(--line); background: var(--card); color: var(--sub); padding: 12px 4px; border-radius: 10px; font: inherit; font-weight: 700; }
+  nav button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  @media (prefers-color-scheme: dark) { nav button.on { color: #0b101a; } }
+  main { padding: 12px 16px 48px; max-width: 560px; margin: 0 auto; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+  .card h2 { margin: 0 0 10px; font-size: 15px; font-weight: 900; }
+  .muted { color: var(--sub); font-size: 13px; }
+  label { display: block; font-size: 13px; color: var(--sub); margin: 10px 0 4px; font-weight: 700; }
+  label .req { color: var(--red); margin-left: 4px; font-size: 12px; }
+  input[type=text], input[type=tel], select, textarea { width: 100%; font: inherit; font-size: 17px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--field); color: var(--ink); }
+  input.num { font-family: "IBM Plex Mono", monospace; font-size: 20px; text-align: right; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .now { font-size: 12px; color: var(--sub); margin-top: 3px; min-height: 1em; }
+  .status { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; margin-top: 8px; font-size: 14px; }
+  .status .v { font-family: "IBM Plex Mono", monospace; font-weight: 600; text-align: right; }
+  .status .bad { color: var(--red); } .status .good { color: var(--green); } .status .warn { color: var(--amber); }
+  button.save { width: 100%; margin-top: 14px; padding: 16px; font: inherit; font-size: 18px; font-weight: 900; border: 0; border-radius: 12px; color: #fff; background: var(--accent); }
+  button.save:disabled { opacity: .5; }
+  .photo { border: 2px dashed var(--line); border-radius: 12px; padding: 14px; text-align: center; }
+  .photo input { display: none; }
+  .photo .pick { display: inline-block; padding: 12px 18px; border-radius: 10px; background: var(--chip); color: var(--accent); font-weight: 900; }
+  .photo img { max-width: 100%; max-height: 220px; border-radius: 10px; margin-top: 10px; display: none; }
+  .photo .name { font-size: 12px; color: var(--sub); margin-top: 6px; word-break: break-all; }
+  ul.recent { list-style: none; margin: 6px 0 0; padding: 0; font-size: 13px; }
+  ul.recent li { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+  ul.recent .mono { font-family: "IBM Plex Mono", monospace; white-space: nowrap; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #0f2e6d; color: #fff; padding: 12px 18px; border-radius: 12px; font-weight: 700; max-width: 90vw; display: none; z-index: 9; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+  .toast.bad { background: var(--red); }
+  .toast.show { display: block; }
+  .hidden { display: none; }
+  .note { background: var(--chip); border-radius: 10px; padding: 10px 12px; font-size: 13px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>カラブリヤ名古屋 現金入力</h1>
+  <div class="sub" id="who">読み込み中…</div>
+</header>
+<nav>
+  <button id="tabClose" class="on" type="button">今日の締め</button>
+  <button id="tabExp" type="button">現金で払った経費</button>
+</nav>
+<main>
+  <section id="paneClose">
+    <div class="card">
+      <h2>その日の締め</h2>
+      <div class="note" id="noteOpening" style="display:none">「設定」の開店前の現金が未入力なので、過不足は本部が設定を入れるまで出ません。</div>
+      <label for="cDate">日付</label>
+      <select id="cDate"></select>
+      <label for="cSales">レジ締めの現金売上(円)<span class="req">毎日</span></label>
+      <input id="cSales" class="num" type="tel" inputmode="numeric" placeholder="例: 85000">
+      <div class="now" id="nowSales"></div>
+      <label for="cCounted">実際に数えた現金(円)<span class="muted">数えた日だけ</span></label>
+      <input id="cCounted" class="num" type="tel" inputmode="numeric" placeholder="数えた日だけ">
+      <div class="now" id="nowCounted"></div>
+      <label for="cDeposit">銀行に入金した額(円)<span class="muted">入金した日だけ</span></label>
+      <input id="cDeposit" class="num" type="tel" inputmode="numeric" placeholder="入金した日だけ">
+      <div class="now" id="nowDeposit"></div>
+      <p class="muted">空欄の項目は書きません(前に入れた値はそのまま)。お休みの日は売上に 0 を入れてください。</p>
+      <button class="save" id="saveClose" type="button">保存</button>
+    </div>
+    <div class="card" id="statusCard" style="display:none">
+      <h2>この日の状態(シートの計算)</h2>
+      <div class="status" id="status"></div>
+    </div>
+  </section>
+
+  <section id="paneExp" class="hidden">
+    <div class="card">
+      <h2>現金で払った経費を1件</h2>
+      <label>領収書の写真<span class="req">必須</span></label>
+      <div class="photo">
+        <label class="pick" for="ePhoto">撮る・選ぶ</label>
+        <input id="ePhoto" type="file" accept="image/*" capture="environment">
+        <img id="ePreview" alt="">
+        <div class="name" id="ePhotoName">まだ選んでいません</div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="eAmount">金額(税込・円)</label>
+          <input id="eAmount" class="num" type="tel" inputmode="numeric" placeholder="例: 1280">
+        </div>
+        <div>
+          <label for="eDate">日付</label>
+          <select id="eDate"></select>
+        </div>
+      </div>
+      <label for="eWhat">何を買ったか</label>
+      <input id="eWhat" type="text" placeholder="例: 氷・レモン">
+      <label for="ePayee">店名(支払先)</label>
+      <input id="ePayee" type="text" placeholder="例: ローソン 名古屋○○店">
+      <label for="eCategory">費用項目</label>
+      <select id="eCategory"><option value="">(分からなければ空でOK)</option></select>
+      <label for="eMemo">メモ</label>
+      <input id="eMemo" type="text" placeholder="領収書がもらえなかった等">
+      <p class="muted">写真さえあれば、他は空でも保存できます(本部が後で補います)。カード・PayPay で払ったものは入れないでください。</p>
+      <button class="save" id="saveExp" type="button">保存</button>
+    </div>
+    <div class="card">
+      <h2>直近の経費</h2>
+      <ul class="recent" id="recent"><li class="muted">まだありません</li></ul>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+  const KEY_RAW = "<?= key ?>";   // GAS から開いた時は doGet が英数字と -_ に絞った値を埋める。外に置いた静的ページでは置換されない
+  const KEY = KEY_RAW.indexOf("<?") === 0 ? "" : KEY_RAW;
+  // 外に置いた静的ページ(GitHub Pages)から開いた時は google.script.run が無いので、この URL へログイン情報なしで POST する
+  // (2026-11-27: Google にログインした端末だと /exec が /u/N/ に飛ばされ開けないため・鈴木達也決定)
+  const API = "https://script.google.com/macros/s/AKfycbwTuV6nUL8CtM7pJtQ-JyMoqWr9FQ3CD25s6VAN8bT7d_Yfyd6vvwC7FssGdIhmeZB4/exec";
+  let DATA = null;
+  let PHOTO = null;          // {base64, mimeType, name}
+  let IDEM_CLOSE = newId(), IDEM_EXP = newId();
+  const WD = ["日", "月", "火", "水", "木", "金", "土"];
+
+  function $(id) { return document.getElementById(id); }
+  function newId() { return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2, 10)); }
+  function call(fn, ...args) {
+    if (window.google && google.script && google.script.run) {
+      return new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...args));
+    }
+    // text/plain = CORS の事前確認を起こさない。credentials:"omit" = Google のログイン状態を送らない(/u/N に飛ばされない)
+    return fetch(API, { method: "POST", credentials: "omit", redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ fn: fn, args: args }) })
+      .then(r => { if (!r.ok) throw new Error("通信に失敗しました(" + r.status + ")。電波の良い所でもう一度"); return r.json(); })
+      .then(j => { if (!j.ok) throw new Error(j.error || "保存できませんでした"); return j.result; });
+  }
+  function yen(n) { return n === null || n === undefined || n === "" ? "—" : Number(n).toLocaleString("ja-JP") + " 円"; }
+  function dateLabel(iso) {
+    const d = new Date(iso + "T00:00:00+09:00");
+    const base = (d.getMonth() + 1) + "/" + d.getDate() + "(" + WD[d.getDay()] + ")";
+    return iso === DATA.today ? base + " 今日" : base;
+  }
+  let toastTimer = null;
+  function toast(msg, bad) {
+    const t = $("toast"); t.textContent = msg; t.className = "toast show" + (bad ? " bad" : "");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.className = "toast"; }, bad ? 6000 : 3500);
+  }
+
+  // ---- タブ ----
+  function showTab(name) {
+    $("paneClose").classList.toggle("hidden", name !== "close");
+    $("paneExp").classList.toggle("hidden", name !== "exp");
+    $("tabClose").classList.toggle("on", name === "close");
+    $("tabExp").classList.toggle("on", name === "exp");
+  }
+  $("tabClose").onclick = () => showTab("close");
+  $("tabExp").onclick = () => showTab("exp");
+
+  // ---- 日付の選択肢・既存値 ----
+  function fillDates(sel) {
+    sel.innerHTML = "";
+    DATA.dates.forEach(iso => { const o = document.createElement("option"); o.value = iso; o.textContent = dateLabel(iso); sel.appendChild(o); });
+    sel.value = DATA.today;
+  }
+  function renderClose() {
+    const iso = $("cDate").value;
+    const s = DATA.days[iso];
+    const now = (id, v) => { $(id).textContent = v === null || v === undefined ? "" : "いま入っている値: " + yen(v) + "(保存すると上書き)"; };
+    now("nowSales", s ? s.sales : null); now("nowCounted", s ? s.counted : null); now("nowDeposit", s ? s.deposit : null);
+    $("noteOpening").style.display = DATA.openingCashSet ? "none" : "block";
+    renderStatus(s);
+  }
+  function renderStatus(s) {
+    const card = $("statusCard"), box = $("status");
+    if (!s || (s.sales === null && s.counted === null && s.deposit === null)) { card.style.display = "none"; return; }
+    card.style.display = "block";
+    const rows = [
+      ["レジ締めの現金売上", s.sales, ""],
+      ["現金で払った経費", s.expense, ""],
+      ["銀行に入金した額", s.deposit, ""],
+      ["手元にあるはずの現金", s.expected, ""],
+      ["実際に数えた現金", s.counted, ""],
+    ];
+    if (s.counted !== null && s.diff !== null) rows.push(["過不足", s.diff, s.diff === 0 ? "good" : "bad"]);
+    else if (s.counted !== null && !DATA.openingCashSet) rows.push(["過不足", "設定待ち", "warn"]);
+    box.innerHTML = rows.map(([k, v, cls]) => '<div>' + k + '</div><div class="v ' + cls + '">' + (typeof v === "number" ? (k === "過不足" && v > 0 ? "+" : "") + yen(v) : (v || "—")) + '</div>').join("");
+  }
+  $("cDate").onchange = renderClose;
+
+  // ---- 締めの保存 ----
+  $("saveClose").onclick = async () => {
+    const btn = $("saveClose");
+    const payload = { date: $("cDate").value, sales: $("cSales").value, counted: $("cCounted").value, deposit: $("cDeposit").value, idem: IDEM_CLOSE };
+    if (payload.sales === "" && payload.counted === "" && payload.deposit === "") { toast("1つ以上入れてください", true); return; }
+    btn.disabled = true; btn.textContent = "保存中…";
+    try {
+      const r = await call("saveClose", KEY, payload);
+      DATA.days[r.date] = r.status; DATA.openingCashSet = r.openingCashSet;
+      IDEM_CLOSE = newId();
+      $("cSales").value = ""; $("cCounted").value = ""; $("cDeposit").value = "";
+      renderClose();
+      const d = r.status;
+      let msg = dateLabel(r.date) + " を保存しました(" + r.written.join("・") + ")";
+      if (d && d.counted !== null && d.diff !== null) msg += " 過不足 " + (d.diff > 0 ? "+" : "") + yen(d.diff);
+      toast(msg, false);
+    } catch (e) {
+      toast("保存できませんでした: " + (e.message || e), true);
+    } finally {
+      btn.disabled = false; btn.textContent = "保存";
+    }
+  };
+
+  // ---- 写真(端末で縮小してから送る・gas/keihi と同じ 2000px / JPEG 82%) ----
+  $("ePhoto").onchange = () => {
+    const f = $("ePhoto").files && $("ePhoto").files[0];
+    if (!f) return;
+    $("ePhotoName").textContent = "読み込み中…";
+    downscale(f).then(res => {
+      PHOTO = { base64: res.base64, mimeType: res.mimeType, name: f.name };
+      const img = $("ePreview"); img.src = "data:" + res.mimeType + ";base64," + res.base64; img.style.display = "block";
+      $("ePhotoName").textContent = f.name + "(" + Math.round(res.base64.length * 3 / 4 / 1024) + " KB)";
+    }).catch(err => { PHOTO = null; $("ePhotoName").textContent = "読み込みに失敗: " + err; });
+  };
+  function readRaw(file) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res({ base64: r.result.split(",")[1], mimeType: file.type || "application/octet-stream" }); r.onerror = rej; r.readAsDataURL(file); }); }
+  function downscale(file) {
+    if (!/^image\//.test(file.type || "")) return readRaw(file);
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const max = 2000, s = Math.min(1, max / Math.max(img.width, img.height));
+          const c = document.createElement("canvas"); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+          c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+          try { const d = c.toDataURL("image/jpeg", 0.82); res({ base64: d.split(",")[1], mimeType: "image/jpeg" }); }
+          catch (e) { res({ base64: r.result.split(",")[1], mimeType: file.type }); }   // HEIC 等で canvas 不可 → 原本
+        };
+        img.onerror = () => res({ base64: r.result.split(",")[1], mimeType: file.type });
+        img.src = r.result;
+      };
+      r.onerror = rej; r.readAsDataURL(file);
+    });
+  }
+
+  // ---- 経費の保存 ----
+  // シートの値(人が書いた文字)は innerHTML に入れず textContent で組む(レビュー ③)
+  function renderRecent() {
+    const ul = $("recent");
+    ul.textContent = "";
+    if (!DATA.recentExpenses.length) { const li = document.createElement("li"); li.className = "muted"; li.textContent = "まだありません"; ul.appendChild(li); return; }
+    DATA.recentExpenses.forEach(x => {
+      const li = document.createElement("li"), a = document.createElement("span"), b = document.createElement("span");
+      a.textContent = (x.date ? x.date.slice(5).replace("-", "/") : "") + " " + (x.payee || "") + (x.what ? " " + x.what : "") + (x.hasPhoto ? "" : "(写真なし)");
+      b.className = "mono"; b.textContent = yen(x.amount);
+      li.appendChild(a); li.appendChild(b); ul.appendChild(li);
+    });
+  }
+  $("saveExp").onclick = async () => {
+    const btn = $("saveExp");
+    if (!PHOTO) { toast("領収書の写真を撮ってください(必須)", true); return; }
+    const payload = { date: $("eDate").value, amount: $("eAmount").value, what: $("eWhat").value, payee: $("ePayee").value,
+                      category: $("eCategory").value, memo: $("eMemo").value, photo: PHOTO, idem: IDEM_EXP };
+    btn.disabled = true; btn.textContent = "保存中…";
+    try {
+      const r = await call("saveExpense", KEY, payload);
+      IDEM_EXP = newId();
+      DATA.recentExpenses.unshift({ date: r.date, what: r.what, payee: r.payee, amount: r.amount, hasPhoto: true });
+      DATA.recentExpenses = DATA.recentExpenses.slice(0, 5);
+      renderRecent();
+      PHOTO = null; $("ePhoto").value = ""; $("ePreview").style.display = "none"; $("ePhotoName").textContent = "まだ選んでいません";
+      $("eAmount").value = ""; $("eWhat").value = ""; $("ePayee").value = ""; $("eCategory").value = ""; $("eMemo").value = "";
+      toast("経費を保存しました(" + (r.amount === null ? "金額は本部が補います" : yen(r.amount)) + ")", false);
+      call("getCashData", KEY).then(d => { DATA = d; renderClose(); }).catch(() => {});   // 現金で払った経費の合計を取り直す
+    } catch (e) {
+      toast("保存できませんでした: " + (e.message || e), true);
+    } finally {
+      btn.disabled = false; btn.textContent = "保存";
+    }
+  };
+
+  // ---- 初期化 ----
+  call("getCashData", KEY).then(d => {
+    DATA = d;
+    $("who").textContent = "今日の営業日: " + dateLabel(d.today) + (d.photoFolderOk ? "" : "(写真フォルダ未設定・本部に連絡)");
+    fillDates($("cDate")); fillDates($("eDate"));
+    d.categories.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; $("eCategory").appendChild(o); });
+    renderClose(); renderRecent();
+  }).catch(e => {
+    $("who").textContent = "開けませんでした";
+    toast(e.message || String(e), true);
+  });
+</script>
+</body>
+</html>
